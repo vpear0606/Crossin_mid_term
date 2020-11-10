@@ -1,0 +1,90 @@
+#读取 report.txt 文件中的成绩；
+#统计每名学生总成绩、计算平均并从高到低重新排名；
+#汇总每一科目的平均分和总平均分（见下表第一行）；
+#添加名次，替换60分以下的成绩为“不及格”；
+#将处理后的成绩另存为一个新文件（result.txt）
+
+#coding=gbk
+#读取文件
+with open('report.txt',encoding='UTF-8') as f:
+    score = f.readlines()
+    print('读取文件',score)
+
+#创建嵌套列表
+count = 0
+for i in score:
+    j = i.split()
+    score[count] = j
+    count += 1
+print('创建嵌套列表',score)
+
+#创建总成绩和平均分
+score[0] = score[0] +['总分','平均分']
+print('加入总分和平均分字段',score)
+
+#计算总分和平均分并放到每个子列表的末尾
+for i in score[1:]:
+    total = 0
+    average = 0
+    for j in i[1:]:
+        total += int(j)
+    average = round(total/9,2)
+    score[score.index(i)] = i + [str(total),str(average)]
+
+print('加入总分和平均分后的列表',score)
+
+#按照总分排序
+sorted_score = sorted(score[1:],key=lambda x: x[10],reverse=True)
+print('排序后成绩',sorted_score)
+
+#生成各科目平均分列表
+summary = ['平均分']
+for i in range(1,12):
+    summary.append(0)
+
+print(summary)
+for i in sorted_score: #遍历所有人的成绩
+    for j in i: #遍历每个人的各科目的成绩
+        if i.index(j) > 0:
+            summary[i.index(j)] += float(j)
+
+#求总平均
+for i in range(1,12):
+    summary[i] = str(round(summary[i] / len(sorted_score),1))
+
+
+#加入名次
+sorted_score.insert(0,summary)
+print(sorted_score)
+
+#增加序号
+for i in sorted_score:
+    i.insert(0,str(sorted_score.index(i)))
+print(sorted_score)
+
+#汇总
+score[0].insert(0,'名次')
+print(score[0])
+sorted_score.insert(0,score[0])
+print('汇总',sorted_score)
+
+#替换不及格
+for i in sorted_score:
+    if sorted_score.index(i) < 2:
+        continue
+    for j in i:
+        if i.index(j) < 2:
+            continue
+        if float(j) < 60:
+            i[i.index(j)] = '不及格'
+
+
+
+#加入回车
+for i in sorted_score:
+    sorted_score[sorted_score.index(i)] = ' '.join(i)+'\n'
+
+print(sorted_score)
+
+with open('result.txt','w',encoding="utf-8") as k:
+    k.writelines(sorted_score)
